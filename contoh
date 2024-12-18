@@ -1,0 +1,64 @@
+const int data = 2;
+const int store = 3;
+const int shift = 4;
+
+int potiValue;
+
+// column counter
+int j = 0;
+// showDuration counter
+int k;
+
+int row[8] = {127, 191, 223, 239, 247, 251, 253, 254};
+
+// Pola Huruf
+int columnR[8] = {255, 129, 129, 255, 128, 136, 132, 129}; // Huruf R yang benar
+int columnM[8] = {129, 195, 165, 153, 129, 129, 129, 129}; // Huruf M
+int columnC[8] = {60, 66, 128, 128, 128, 128, 66, 60};     // Huruf C (diperbaiki)
+
+void setup()
+{
+  Serial.begin(9600);
+  // 74HC595
+  pinMode(data, OUTPUT); // data
+  pinMode(store, OUTPUT); // store
+  pinMode(shift, OUTPUT); // shift
+}
+
+void poti()
+{
+  potiValue = analogRead(0);
+}
+
+void displayLetter(int column[])
+{
+  for (k = 0; k < 100; k++)  // Loop untuk menampilkan huruf beberapa kali
+  {
+    for (int i = 0; i < 8; i++)  // Loop untuk menampilkan kolom dan baris
+    {
+      digitalWrite(store, LOW);
+      shiftOut(data, shift, LSBFIRST, column[j]); // Kolom huruf
+      shiftOut(data, shift, LSBFIRST, row[i]);   // Baris
+      digitalWrite(store, HIGH);
+      j++;
+      poti();
+      delay(potiValue);  // Delay sesuai dengan nilai potensiometer
+    }
+    j = 0;  // Reset kolom setelah satu putaran
+  }
+}
+
+void loop()
+{
+  // Tampilkan huruf R selama 3 detik
+  displayLetter(columnR);
+  delay(3000); // Jeda 3 detik
+  
+  // Tampilkan huruf M selama 3 detik
+  displayLetter(columnM);
+  delay(3000); // Jeda 3 detik
+  
+  // Tampilkan huruf C selama 3 detik
+  displayLetter(columnC);
+  delay(3000); // Jeda 3 detik
+}
