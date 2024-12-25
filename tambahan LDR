@@ -1,0 +1,75 @@
+#include <Servo.h>
+
+// tambahan LDR di code nya
+
+// Define the pins for the ultrasonic sensor
+const int trigPin = 9;
+const int echoPin = 8;
+
+// Define the pin for LDR
+const int ldrPin = A0;
+
+// Define the LED pin
+const int ledPin = 13;
+
+// Define the servo motor
+Servo myServo;
+
+// Variables for duration, distance, and light level
+long duration;
+int distance;
+int lightLevel;
+
+void setup() {
+  // Set up the pins for the ultrasonic sensor
+  pinMode(trigPin, OUTPUT);
+  pinMode(echoPin, INPUT);
+  
+  // Set up the LED pin
+  pinMode(ledPin, OUTPUT);
+  
+  // Attach the servo motor to pin 6
+  myServo.attach(6); // Adjust the servo pin as needed
+  
+  // Initialize serial communication
+  Serial.begin(9600);
+}
+
+void loop() {
+  // Measure distance using the ultrasonic sensor
+  digitalWrite(trigPin, LOW);
+  delayMicroseconds(2);
+  digitalWrite(trigPin, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(trigPin, LOW);
+  duration = pulseIn(echoPin, HIGH);
+  distance = duration * 0.034 / 2;
+
+  // Read the light level from the LDR
+  lightLevel = analogRead(ldrPin);
+
+  // Print the distance and light level to the Serial Monitor
+  Serial.print("Distance: ");
+  Serial.print(distance);
+  Serial.print(" cm, Light Level: ");
+  Serial.println(lightLevel);
+
+  // Map the distance to a servo angle (0 to 180 degrees)
+  int angle = map(distance, 0, 100, 0, 180);
+  
+  // Constrain the angle to stay within the servo's range
+  angle = constrain(angle, 0, 180);
+  
+  // Move the servo to the calculated angle
+  myServo.write(angle);
+
+  // Turn the LED on or off based on light level
+  if (lightLevel < 500) { // Adjust threshold as needed
+    digitalWrite(ledPin, HIGH); // Turn LED on
+  } else {
+    digitalWrite(ledPin, LOW);  // Turn LED off
+  }
+
+  // Add a small delay to avoid rapid changes
+  delay(100);
+}
