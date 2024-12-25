@@ -1,7 +1,5 @@
 #include <Servo.h>
 
-// tambahan LDR di code nya
-
 // Define the pins for the ultrasonic sensor
 const int trigPin = 9;
 const int echoPin = 8;
@@ -28,8 +26,8 @@ void setup() {
   // Set up the LED pin
   pinMode(ledPin, OUTPUT);
   
-  // Attach the servo motor to pin 6
-  myServo.attach(6); // Adjust the servo pin as needed
+  // Attach the servo motor to pin 7
+  myServo.attach(7);
   
   // Initialize serial communication
   Serial.begin(9600);
