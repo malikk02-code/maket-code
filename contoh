@@ -1,64 +1,68 @@
-const int data = 2;
-const int store = 3;
-const int shift = 4;
+#include <Servo.h>
+#include <LiquidCrystal.h>
 
-int potiValue;
+// Inisialisasi LCD
+LiquidCrystal lcd(11, 2, 4, 5, 6, 7);
 
-// column counter
-int j = 0;
-// showDuration counter
-int k;
+Servo servo;
+int angle = 0; // Sudut awal servo
+int LED1 = 13;
+const int trigPin1 = 10;
+const int buzzerPin = 12;
+const int echoPin1 = 9; // Pastikan tidak konflik dengan servo
 
-int row[8] = {127, 191, 223, 239, 247, 251, 253, 254};
+long durasi = 0; // Inisialisasi durasi
+int jarak = 0;   // Inisialisasi jarak
 
-// Pola Huruf
-int columnR[8] = {255, 129, 129, 255, 128, 136, 132, 129}; // Huruf R yang benar
-int columnM[8] = {129, 195, 165, 153, 129, 129, 129, 129}; // Huruf M
-int columnC[8] = {60, 66, 128, 128, 128, 128, 66, 60};     // Huruf C (diperbaiki)
-
-void setup()
-{
+void setup() {
+  servo.attach(8);
+  servo.write(angle); // Servo pada posisi awal
+  lcd.begin(16, 2);   // LCD 16x2
+  pinMode(LED1, OUTPUT);
+  pinMode(buzzerPin, OUTPUT);
+  pinMode(trigPin1, OUTPUT);
+  pinMode(echoPin1, INPUT);
   Serial.begin(9600);
-  // 74HC595
-  pinMode(data, OUTPUT); // data
-  pinMode(store, OUTPUT); // store
-  pinMode(shift, OUTPUT); // shift
 }
 
-void poti()
-{
-  potiValue = analogRead(0);
-}
+void loop() {
+  // Mengukur jarak
+  digitalWrite(trigPin1, LOW);
+  delayMicroseconds(2);
+  digitalWrite(trigPin1, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(trigPin1, LOW);
 
-void displayLetter(int column[])
-{
-  for (k = 0; k < 100; k++)  // Loop untuk menampilkan huruf beberapa kali
-  {
-    for (int i = 0; i < 8; i++)  // Loop untuk menampilkan kolom dan baris
-    {
-      digitalWrite(store, LOW);
-      shiftOut(data, shift, LSBFIRST, column[j]); // Kolom huruf
-      shiftOut(data, shift, LSBFIRST, row[i]);   // Baris
-      digitalWrite(store, HIGH);
-      j++;
-      poti();
-      delay(potiValue);  // Delay sesuai dengan nilai potensiometer
-    }
-    j = 0;  // Reset kolom setelah satu putaran
+  durasi = pulseIn(echoPin1, HIGH);
+
+  // Jika tidak ada sinyal, set jarak ke nilai maksimum
+  if (durasi == 0) {
+    jarak = 400; // Misalnya, maksimum jarak dalam cm
+  } else {
+    jarak = (durasi * 0.034 / 2);
   }
-}
 
-void loop()
-{
-  // Tampilkan huruf R selama 3 detik
-  displayLetter(columnR);
-  delay(3000); // Jeda 3 detik
-  
-  // Tampilkan huruf M selama 3 detik
-  displayLetter(columnM);
-  delay(3000); // Jeda 3 detik
-  
-  // Tampilkan huruf C selama 3 detik
-  displayLetter(columnC);
-  delay(3000); // Jeda 3 detik
+  // Menampilkan jarak ke Serial Monitor
+  Serial.print("Jarak: ");
+  Serial.println(jarak);
+
+  // Menampilkan jarak ke LCD
+  lcd.setCursor(0, 0);
+  lcd.print("Jarak: ");
+  lcd.print(jarak);
+  lcd.print(" cm   "); // Tambahkan spasi untuk membersihkan angka lama
+
+  // Logika kontrol
+  if (jarak >= 10 && jarak <= 20) { // Rentang jarak 10-20 cm
+    digitalWrite(LED1, HIGH); // Nyalakan LED
+    servo.write(72);          // Servo bergerak ke sudut 72
+    tone(buzzerPin, 100);     // Buzzer menyala
+  } else {
+    digitalWrite(LED1, LOW);  // Matikan LED
+    servo.write(0);           // Servo kembali ke sudut awal
+    noTone(buzzerPin);        // Matikan buzzer
+  }
+
+  // Delay untuk stabilitas pembacaan
+  delay(100);
 }
