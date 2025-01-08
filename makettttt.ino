@@ -59,7 +59,7 @@ void loop() {
   Serial.println(ldrValue);
   
   // Jika nilai LDR menunjukkan cukup cahaya, nyalakan LED
-  if (ldrValue < 950) {  // Angka 950 bisa disesuaikan dengan kondisi cahaya
+  if (ldrValue < 100) {  // Angka 100 bisa disesuaikan dengan kondisi cahaya
     digitalWrite(ledPin, HIGH);  // Nyalakan LED
   } else {
     digitalWrite(ledPin, LOW);   // Matikan LED
