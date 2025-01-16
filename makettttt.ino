@@ -1,70 +1,57 @@
 #include <Servo.h>
 
-const int trigPin = 6;      // Pin untuk Trigger HC-SR04
-const int echoPin = 7;      // Pin untuk Echo HC-SR04
-const int ldrPin = A0;      // Pin untuk Sensor LDR (Analog)
-const int ledPin = 13;      // Pin untuk LED
-const int servoPin = 9;     // Pin untuk Mini Servo
+const int trigPin = 6;      
+const int echoPin = 7;      
+const int ldrPin = A0;      
+const int ledPin = 13;      
+const int servoPin = 9;     
 
-Servo myServo;              // Objek servo
+Servo myServo;
 
 void setup() {
-  // Inisialisasi pin
+  
   pinMode(trigPin, OUTPUT);
   pinMode(echoPin, INPUT);
   pinMode(ledPin, OUTPUT);
   
-  // Inisialisasi servo
-  myServo.attach(servoPin);
   
-  // Mulai komunikasi serial untuk debugging
+  myServo.attach(servoPin);
   Serial.begin(9600);
 }
 
 void loop() {
-  // Mengukur jarak menggunakan sensor ultrasonik
   long duration, distance;
   
-  // Kirim pulse ke trigPin
   digitalWrite(trigPin, LOW); 
   delayMicroseconds(2);
   digitalWrite(trigPin, HIGH);
   delayMicroseconds(10);
   digitalWrite(trigPin, LOW);
-  
-  // Mengukur waktu untuk echo pin kembali
+
   duration = pulseIn(echoPin, HIGH);
   
-  // Hitung jarak berdasarkan waktu echo
-  distance = duration * 0.0344 / 2;  // Rumus jarak dalam cm
+  distance = duration * 0.0344 / 2;  
   
-  // Tampilkan jarak untuk debugging
   Serial.print("Jarak: ");
   Serial.print(distance);
   Serial.println(" cm");
   
-  // Menggerakkan servo berdasarkan jarak
   if (distance < 20) {
-    myServo.write(0);  // Gerakkan servo ke 0 derajat jika jarak < 20 cm
-    delay(3500);       // Tambahkan delay 1 detik sebelum servo kembali
+    myServo.write(0);  
+    delay(3500);    
   } else {
-    myServo.write(90);   // Gerakkan servo ke 90 derajat jika jarak >= 20 cm
+    myServo.write(90);   
   }
 
-  // Membaca nilai LDR untuk mendeteksi cahaya
   int ldrValue = analogRead(ldrPin);
   
-  // Tampilkan nilai sensor LDR untuk debugging
   Serial.print("Nilai LDR: ");
   Serial.println(ldrValue);
   
-  // Jika nilai LDR menunjukkan cukup cahaya, nyalakan LED
-  if (ldrValue < 100) {  // Angka 100 bisa disesuaikan dengan kondisi cahaya
-    digitalWrite(ledPin, HIGH);  // Nyalakan LED
+  if (ldrValue < 100) {
+    digitalWrite(ledPin, HIGH);  
   } else {
-    digitalWrite(ledPin, LOW);   // Matikan LED
+    digitalWrite(ledPin, LOW);  
   }
-  
-  // Delay sebentar untuk stabilitas
   delay(100);
 }
