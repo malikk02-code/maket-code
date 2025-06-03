@@ -48,7 +48,7 @@ void loop() {
   Serial.print("Nilai LDR: ");
   Serial.println(ldrValue);
   
-  if (ldrValue < 100) {
+  if (ldrValue < 950) {
     digitalWrite(ledPin, HIGH);  
   } else {
     digitalWrite(ledPin, LOW);  
